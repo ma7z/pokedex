@@ -8,17 +8,13 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 
 type GoTo = "/pokemons" | "/";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
-  const route = location.pathname;
-
-  console.log(location.pathname);
 
   const goTo = (route: GoTo) => {
     navigate(route);

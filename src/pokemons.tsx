@@ -1,4 +1,4 @@
-import { Html, OrbitControls, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import React, { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";

@@ -1,29 +1,8 @@
-import React, { useState } from "react";
-import { Sparkles, ChevronRight } from "lucide-react";
 import SparklesText from "./ui/sparkles-text";
-import { WarpBackground } from "./ui/warp-background";
-import { ShinyButton } from "./ui/shiny-button";
 import { RainbowButton } from "./ui/rainbow-button";
 import { Link } from "react-router";
 
 const Cta = () => {
-  const stats = [
-    {
-      id: 0,
-      title: "360°",
-      description: "Pokémons em 3D",
-    },
-    {
-      id: 1,
-      title: "150+",
-      description: "Visualização",
-    },
-    {
-      id: 2,
-      title: "HD",
-      description: "Alta Qualidade e Desempenho",
-    },
-  ];
 
   return (
     <div className="flex items-center justify-center p-4 mt-16">
