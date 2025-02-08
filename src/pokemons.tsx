@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useState,
   useRef,
-  type ChangeEvent,
   useMemo,
   type FormEvent,
 } from "react";
@@ -21,16 +20,14 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Box3, Vector3, Group, Material, Mesh } from "three";
-import { HomeIcon, Loader, Search, SearchIcon } from "lucide-react";
+import { HomeIcon, Loader, SearchIcon } from "lucide-react";
 import { InfoCircledIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Dialog, DialogContent, DialogTrigger } from "./components/ui/dialog";
 import axios from "axios";
 import PokemonDetails from "./pokemondetails";
 import { Input } from "./components/ui/input";
-import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { AuroraText } from "./components/magicui/aurora-text";
-import { relative } from "path";
 
 interface PokemonData {
   id: number;

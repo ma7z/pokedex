@@ -2,10 +2,8 @@ import { Canvas } from "@react-three/fiber";
 import Cta from "./components/cta";
 import { WarpBackground } from "./components/ui/warp-background";
 import { AmbientLights, PokemonDisplay } from "./pokemons";
-import { Html, OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Mouse } from "lucide-react";
-import { Link } from "react-router";
-import { RainbowButton } from "./components/ui/rainbow-button";
 import { Navbar } from "./components/navbar";
 
 const ScrollInstructions = () => {
