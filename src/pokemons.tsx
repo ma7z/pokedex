@@ -1,6 +1,13 @@
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { Html, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  type ChangeEvent,
+  useMemo,
+  type FormEvent,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Pagination,
@@ -11,14 +18,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Box3, Vector3, Group, Material, Mesh } from "three";
-import { Loader } from "lucide-react";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { HomeIcon, Loader, Search, SearchIcon } from "lucide-react";
+import { InfoCircledIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Dialog, DialogContent, DialogTrigger } from "./components/ui/dialog";
 import axios from "axios";
 import PokemonDetails from "./pokemondetails";
+import { Input } from "./components/ui/input";
+import { createPortal } from "react-dom";
+import { Button } from "./components/ui/button";
+import { AuroraText } from "./components/magicui/aurora-text";
+import { relative } from "path";
 
 interface PokemonData {
   id: number;
@@ -48,7 +60,7 @@ interface ErrorBoundaryState {
 
 interface PokemonDisplayProps extends PokemonData {}
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 8;
 
 const fetchPokemonData = async ({
   page,
@@ -87,7 +99,17 @@ export const ModelErrorBoundary: React.FC<{
   const [hasError, setHasError] = useState<boolean>(false);
 
   if (hasError) {
-    return <group></group>;
+    return (
+      <Html
+        center
+        style={{ position: "relative" }}
+        className="z-[-10] text-center w-[20rem] flex flex-col items-center justify-center"
+      >
+        <div className="z-[10] text-center relative font-michroma">
+          Infelizmente o modelo deste pokémon não existe ou não foi encontrado.
+        </div>
+      </Html>
+    );
   }
 
   return (
@@ -98,7 +120,6 @@ export const ModelErrorBoundary: React.FC<{
     </group>
   );
 };
-
 export const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ model }) => {
   const groupRef = useRef<Group>(null);
   const { scene } = useGLTF(model);
@@ -191,15 +212,39 @@ export const AmbientLights = () => {
 export const Pokemons: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
+  const searchQuery = searchParams.get("search") || "";
+
+  const [filteredPokemon, setFilteredPokemon] = useState<PokemonData[]>([]);
 
   const { data, isLoading, error } = useQuery<PokemonList>({
-    queryKey: ["pokemon", currentPage],
-    queryFn: () => fetchPokemonData({ page: currentPage }),
+    queryKey: ["allPokemon"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "https://raw.githubusercontent.com/Sudhanshu-Ambastha/Poke-3D-Models-Api/main/PokeData.json"
+      );
+      return {
+        pokemon: response.data.pokemon,
+        totalCount: response.data.pokemon.length,
+      };
+    },
     staleTime: Infinity,
   });
 
-  const [isChangingPage, setIsChangingPage] = useState(false);
-  const totalPages = data ? Math.ceil(1025 / ITEMS_PER_PAGE) : 0;
+  useEffect(() => {
+    if (data?.pokemon && searchQuery) {
+      const filtered = data.pokemon.filter((pokemon) =>
+        pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredPokemon(filtered);
+      if (currentPage !== 1) {
+        setSearchParams({ search: searchQuery, page: "1" });
+      }
+    } else {
+      setFilteredPokemon(data?.pokemon || []);
+    }
+  }, [searchQuery, data?.pokemon, setSearchParams]);
+
+  const totalPages = Math.ceil((filteredPokemon?.length || 0) / ITEMS_PER_PAGE);
 
   useEffect(() => {
     if (currentPage < totalPages) {
@@ -208,16 +253,37 @@ export const Pokemons: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  const handlePageChange = (newPage: number): void => {
-    if (isChangingPage) return;
+  const paginatedPokemon = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return filteredPokemon.slice(start, end);
+  }, [currentPage, filteredPokemon]);
 
-    if (newPage >= 1 && newPage <= totalPages) {
-      setIsChangingPage(true);
-      setSearchParams({ page: newPage.toString() });
+  const handlePageChange = (newPage: number) => {
+    setSearchParams({
+      search: "",
+      page: newPage.toString(),
+    });
+  };
 
-      setTimeout(() => {
-        setIsChangingPage(false);
-      }, 1000);
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const searchValue = (
+      form.elements.namedItem("pokeSearch") as HTMLInputElement
+    ).value;
+
+    if (searchValue === "" && searchQuery) {
+      setSearchParams({
+        page: "1",
+      });
+    }
+    if (searchValue) {
+      setSearchParams({
+        ...{ search: searchValue },
+        page: "1",
+      });
     }
   };
   const getPageNumbers = (): Array<number> => {
@@ -286,101 +352,142 @@ export const Pokemons: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col bg-background w-full overflow-x-hidden mt-36">
-      <div className="flex flex-wrap gap-1 justify-center">
-        {data?.pokemon?.map((pokemon) => (
-          <div
-            key={pokemon.id}
-            className="w-full md:size-[19.3rem] border-foreground/10 border rounded-md"
-          >
-            <div className="flex size-fit px-1 rounded-xl items-center absolute">
-              <div className="flex gap-x-1">
-                <h1 className="font-michroma text-md md:text-lg pointer-events-none select-none">
-                  {pokemon.name}
-                </h1>
-                <div className="flex rounded-2xl p-2 gap-x-2 items-center cursor-pointer z-[10]">
-                  {pokemon.id && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <InfoCircledIcon className="size-3 md:size-5 hover:scale-110 duration-300" />
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px] p-0 z-[999]">
-                        <PokemonDetails id={pokemon.id} />
-                      </DialogContent>
-                    </Dialog>
+    <div className="flex flex-col bg-background">
+      <div className="flex items-center justify-between px-1">
+        <div className="w-1/2 fixed bottom-8 mb-auto mx-auto inset-x-0 z-[999]">
+          <Pagination className="size-fit bg-background/70 backdrop-blur-lg rounded-full border">
+            <PaginationContent>
+              <PaginationItem className="rounded-full">
+                <PaginationPrevious
+                  aria-disabled={searchQuery.length <= 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={
+                    currentPage === 1
+                      ? "pointer-events-none opacity-50 rounded-full"
+                      : "rounded-full cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+              {getPageNumbers().map((pageNum, idx) => (
+                <PaginationItem className="rounded-full" key={idx}>
+                  {pageNum === -1 ? (
+                    <PaginationEllipsis className="rounded-full" />
+                  ) : (
+                    <PaginationLink
+                      aria-disabled={searchQuery.length <= 1}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`cursor-pointer rounded-full ${
+                        pageNum === currentPage
+                          ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                          : ""
+                      }`}
+                    >
+                      {pageNum}
+                    </PaginationLink>
                   )}
-                </div>
-              </div>
-            </div>
-
-            <Canvas
-              className="flex items-center justify-center"
-              camera={{ fov: 80 }}
-              gl={{
-                powerPreference: "high-performance",
-                antialias: false,
-                failIfMajorPerformanceCaveat: true,
-                preserveDrawingBuffer: false,
-              }}
-            >
-              <AmbientLights />
-              <OrbitControls
-                maxDistance={0}
-                minDistance={2}
-                enablePan={false}
-                enableZoom={false}
-              />
-
-              <ModelErrorBoundary>
-                <PokemonDisplay {...pokemon} />
-              </ModelErrorBoundary>
-            </Canvas>
-          </div>
-        ))}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
 
-      <Pagination className="my-8 overflow-x-hidden">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => handlePageChange(currentPage - 1)}
-              className={
-                currentPage === 1
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
-            />
-          </PaginationItem>
-          {getPageNumbers().map((pageNum, idx) => (
-            <PaginationItem key={idx}>
-              {pageNum === -1 ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`cursor-pointer ${
-                    pageNum === currentPage
-                      ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                      : ""
-                  }`}
-                >
-                  {pageNum}
-                </PaginationLink>
-              )}
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => handlePageChange(currentPage + 1)}
-              className={
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-1 px-8 max-w-screen overflow-hidden">
+        {paginatedPokemon.length >= 1 ? (
+          paginatedPokemon.map((pokemon) => (
+            <div
+              key={pokemon.id}
+              className="w-full aspect-square sm:aspect-[2rem] md:aspect-[29.5rem] lg:aspect-[35rem] border-foreground/10 border rounded-md"
+            >
+              <div className="flex size-fit px-1 rounded-xl items-center absolute">
+                <div className="flex gap-x-1">
+                  <h1 className="font-michroma text-md md:text-lg pointer-events-none select-none">
+                    {pokemon.name}
+                  </h1>
+                  <div className="flex rounded-2xl p-2 gap-x-2 items-center cursor-pointer z-[10]">
+                    {pokemon.id && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <InfoCircledIcon className="size-3 md:size-5 hover:scale-110 duration-300" />
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] p-0">
+                          <PokemonDetails id={pokemon.id} />
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Canvas
+                className="flex items-center justify-center"
+                camera={{ fov: 70 }}
+                gl={{}}
+              >
+                <AmbientLights />
+                <OrbitControls
+                  maxDistance={0}
+                  minDistance={2}
+                  enablePan={false}
+                  enableZoom={true}
+                />
+
+                <ModelErrorBoundary>
+                  <PokemonDisplay {...pokemon} />
+                </ModelErrorBoundary>
+              </Canvas>
+            </div>
+          ))
+        ) : (
+          <div className="w-full h-screen">
+            <div className="flex flex-col m-auto inset-0 size-fit items-center justify-center absolute gap-y-16">
+              <img
+                src="pokeball.svg"
+                alt=""
+                className="size-48 aspect-square animate-bounce"
+              />
+              <h1 className="text-3xl font-bold max-w-3xl text-center font-michroma">
+                OPSS, Nenhum Pokemon foi encontrado com esse nome "
+                <AuroraText>{searchQuery}</AuroraText>''
+              </h1>
+              <Link to="/pokemons">
+                <Button variant="outline">
+                  <ReloadIcon />
+                  Tentar novamente
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex size-fit items-center mx-auto bg-background absolute backdrop-blur-xl inset-x-0 top-8 gap-x-1 rounded-full">
+        <Link to={"/"}>
+          <Button className="rounded-full" variant="outline">
+            <HomeIcon />
+          </Button>
+        </Link>
+        <form onSubmit={handleSearch} className="flex items-center gap-x-1">
+          <Input
+            className="rounded-full"
+            placeholder="Pesquisar"
+            type="search"
+            name="pokeSearch"
+          />
+          <Button className="rounded-full" variant="outline" type="submit">
+            <SearchIcon />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

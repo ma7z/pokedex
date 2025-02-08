@@ -170,7 +170,7 @@ const PokemonDetails: React.FC<PokemonDetailsProps> = ({ id }) => {
                     </span>
                     <div className="flex-1 h-4 bg-neutral-200 dark:bg-neutral-600 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-blue-500 dark:bg-blue-400 transition-all duration-500"
+                        className="h-full bg-blue-500 shadow-blue-500 shadow-2xl dark:bg-blue-400 transition-all duration-500"
                         style={{ width: `${(stat.base_stat / 255) * 100}%` }}
                       />
                     </div>

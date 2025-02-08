@@ -1,7 +1,4 @@
 import SparklesText from "./ui/sparkles-text";
-import { RainbowButton } from "./ui/rainbow-button";
-import { Link } from "react-router";
-
 const Cta = () => {
 
   return (
@@ -16,15 +13,12 @@ const Cta = () => {
           />
         </h1>
 
-        <div className="flex flex-col items-center">
-          <p className="text-sm leading-5 mb-8 max-w-2xl mx-auto font-sora opacity-70 pointer-events-none">
+        <div className="flex flex-col w-full">
+          <p className="text-sm text-center leading-5 mb-8 max-w-2xl mx-auto font-sora opacity-70 pointer-events-none">
             Mergulhe em um mundo único onde seus Pokémon favoritos ganham vida
             em 3D. Uma experiência visual revolucionária que vai transformar sua
             forma de ver o universo Pokémon.
           </p>
-          <Link to="pokemons" className="pointer-events-auto">
-            <RainbowButton className="z-[90]">Ver Pokémons</RainbowButton>
-          </Link>
         </div>
       </div>
     </div>
