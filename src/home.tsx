@@ -5,6 +5,7 @@ import { AmbientLights, PokemonDisplay } from "./pokemons";
 import { OrbitControls } from "@react-three/drei";
 import { Mouse } from "lucide-react";
 import { Navbar } from "./components/navbar";
+import axios from "axios";
 
 const ScrollInstructions = () => {
   return (
@@ -18,6 +19,8 @@ const ScrollInstructions = () => {
     </div>
   );
 };
+
+
 
 export const Home = () => {
   return (
@@ -46,7 +49,7 @@ export const Home = () => {
                 <PokemonDisplay
                   id={88}
                   name="Grimer"
-                  model="https://raw.githubusercontent.com/Sudhanshu-Ambastha/Poke-3D-Models-Api/main/models/regular/88.glb"
+                  model="https://raw.githubusercontent.com/Sudhanshu-Ambastha/Pokemon-3D/main/models/opt/regular/88.glb"
                 />
               </Canvas>
             </div>

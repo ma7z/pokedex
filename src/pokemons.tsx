@@ -71,8 +71,9 @@ const fetchPokemonData = async ({
 
   try {
     const response = await axios.get(
-      "https://raw.githubusercontent.com/Sudhanshu-Ambastha/Poke-3D-Models-Api/main/PokeData.json"
+      "https://pokemon3d-api.onrender.com/v1/regular"
     );
+    console.log(response)
 
     const allData = response.data;
     const start = (page - 1) * ITEMS_PER_PAGE;
@@ -217,11 +218,11 @@ export const Pokemons: React.FC = () => {
     queryKey: ["allPokemon"],
     queryFn: async () => {
       const response = await axios.get(
-        "https://raw.githubusercontent.com/Sudhanshu-Ambastha/Poke-3D-Models-Api/main/PokeData.json"
+        "https://pokemon3d-api.onrender.com/v1/regular"
       );
       return {
-        pokemon: response.data.pokemon,
-        totalCount: response.data.pokemon.length,
+        pokemon: response.data[0].pokemon,
+        totalCount: response.data[0].pokemon.length,
       };
     },
     staleTime: Infinity,

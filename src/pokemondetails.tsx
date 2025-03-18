@@ -1,8 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
-import { Loading } from "./components/loading";
-
+import Loading from "./components/loading";
 const typeTranslations: Record<string, string> = {
   normal: "Normal",
   fighting: "Lutador",
