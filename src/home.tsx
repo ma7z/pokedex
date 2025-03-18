@@ -5,7 +5,6 @@ import { AmbientLights, PokemonDisplay } from "./pokemons";
 import { OrbitControls } from "@react-three/drei";
 import { Mouse } from "lucide-react";
 import { Navbar } from "./components/navbar";
-import axios from "axios";
 
 const ScrollInstructions = () => {
   return (
