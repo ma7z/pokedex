@@ -1,50 +1,36 @@
-# React + TypeScript + Vite
+# 🧩 Poke3D - Visualizador de Pokémon em 3D
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Projeto web interativo que permite explorar Pokémon em modelos **3D detalhados**, exibindo **animações, habilidades e informações completas** de cada criatura.
 
-Currently, two official plugins are available:
+Este projeto foi desenvolvido para fins de aprendizado, portfólio e demonstração de habilidades com tecnologias modernas.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🔍 Funcionalidades
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- 🧠 Visualização completa de Pokémon em 3D com rotação livre
+- 🌀 Animações realistas e fluídas de cada Pokémon
+- 📋 Exibição das habilidades e tipos de cada Pokémon
+- 🎮 Interface inspirada em jogos, com experiência imersiva
+- 📱 Responsivo e compatível com dispositivos móveis
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🛠️ Tecnologias utilizadas
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- **React** + **TypeScript**  
+- **Three.js** para renderização 3D  
+- **TailwindCSS** para estilização  
+- **Shadcn UI** para componentes reutilizáveis  
+- **Framer Motion** para animações suaves  
+- **API PokéAPI** para dados dos Pokémon
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+---
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 🚀 Como rodar localmente
+
+```bash
+git clone https://github.com/seu-usuario/pokedex.git
+cd poke3d
+npm install
+npm run dev
